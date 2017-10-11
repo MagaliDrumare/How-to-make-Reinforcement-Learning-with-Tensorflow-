@@ -29,13 +29,12 @@ predict=tf.argmax(Qout,1)
 nextQ=tf.placeholder(shape=[1,4],dtype=tf.float32)
 # nextQ is the TargetQ calculated with the Bellman Equation with the Q value of the state s1 
 #(output of the network when the input is state 1)
-# Q out is the predict Q value 
+# Qout is the predict Q value 
 loss=tf.reduce_sum(tf.mean(nextQ-Qout))
 trainer=tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel=trainer.minimize(loss)
 
 #3-Training the network 
-
 init=tf.initialize_all_Variables()
 
 ##learning parameter
@@ -62,7 +61,7 @@ with tf.Sessioin as sess():
 		rAll=0
 		# d = done 
 		#done (boolean): whether it's time to reset the environment again. 
-		#Most (but not all)                                                                                           tasks are divided up into well-defined episodes,
+		#Most (but not all)tasks are divided up into well-defined episodes,
 		#and done being True indicates the episode has terminated. 
 		#(For example, perhaps the pole tipped too far, or you lost your last life.)
 		d=False
@@ -80,21 +79,19 @@ with tf.Sessioin as sess():
 		 	a,allQ =sess.run([predict,Qout],feed_dict={inputs1:np.identity(16)[s:s+1]})
 		 	if np.random.rand(1) < e:
 		 		# environment after the action 
-                a[0] = env.action_space.sample() 
-		 	
+               		 a[0] = env.action_space.sample() 
 		 	
 		 	# 2_After this first action a[O], update the state (s1) and reward (r) from the environment 
 		 	 s1,r,d,_ = env.step(a[0])
 
-		 	
 		 	 # 3_Obtain all the Q_values possible when s1 is the input state. 
-		 	 # Obtain the Q1 values by feeding the new state s1 in the network 
-		 	 # Q1 values = Qout values if the state S1 is the input1 of the network 
+		 	 # Obtain the Q1 values by feeding the new state s1 in the network. 
+		 	 # Q1 values = Qout values if the state s1 is the input1 of the network. 
 		 	 Q1=sess.run(Qout,feed_dict={inputs1: np.identity(16)[s1:s1+1]})
 
 		 	
-		 	 # Apply Belman Equation Q(s,a) = r + γ(max(Q(s’,a’))
-		 	 # Obtain maxQ1 and set our target value for the choosen action at state s 
+		 	 # Apply Bellman Equation Q(s,a) = r + γ(max(Q(s’,a’).
+		 	 # Obtain maxQ1 and set our target value for the choosen action at state s. 
 		 	 maxQ1=np.max(Q1) # ~ maxQ(s',a')
 		 	 targetQ=allQ # targetQ[0,a[Ø]] ~  Q(s,a)
 		 	 targetQ[0,a[Ø]]=r+y*maxQ1 # Q(s,a) = r + γ(max(Q(s’,a’))
